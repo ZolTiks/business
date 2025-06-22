@@ -1,0 +1,299 @@
+#
+# Плагин добавляет реализует следующие функции...
+#
+# Команды:
+# /business reload - Перезагрузка плагина.
+# /business - Показать список моих бизнесов.
+# /business (id) up - Купить бизнес или улучшить если куплен.
+# /business (ник игрока) multiplier (множитель) - Установить множитель дохода игроку.
+# /business (ник игрока) multiplier add (значение) - Увеличить множитель дохода игроку.
+# /business (ник игрока) multiplier del (значение) - Уменьшить множитель дохода игроку.
+# /business (ник игрока) reset - Очистить список купленных бизнесов игрока.
+#
+# Плейсхолдеры:
+# %business_business_income_multiplier% - Множитель дохода.
+# %business_business_income_multiplier_percent% - Множитель дохода в виде процента.
+# %business_business_total_owned% - Купено бизнесов.
+# %business_business_total_income% - Суммарный доход от всех бизнесов.
+# %business_balance% - Форматированный баланс игрока.
+# %business_player_business_level_1% - Уровень бизнеса с ID=1 игрока.
+# %business_player_business_level_2% - Уровень бизнеса с ID=2 игрока.
+# %business_player_business_level_...% - т.д.
+#
+# %business_business_total_income_1% - Суммарный доход бизнеса с ID=1 игрока.
+# %business_business_total_income_2% - Суммарный доход бизнеса с ID=2 игрока.
+# %business_business_total_income_...% - т.д.
+#
+# %player_business_upgrade_price_1% - Стоимость улучшения бизнеса с ID=1 игрока.
+# %player_business_upgrade_price_2% - Стоимость улучшения бизнеса с ID=2 игрока.
+# %player_business_upgrade_price_...% - т.д.
+#
+# %business_business_display_name_1% - Название бизнеса с ID=1.
+# %business_business_display_name_2% - Название бизнеса с ID=2.
+# %business_business_display_name_...% - т.д.
+#
+# %business_business_max_level_1% - Максимальный уровень бизнеса с ID=1.
+# %business_business_max_level_2% - Максимальный уровень бизнеса с ID=2.
+# %business_business_max_level_...% - т.д.
+#
+# %business_business_buy_price_1% - Стоимость покупки бизнеса с ID=1.
+# %business_business_buy_price_2% - Стоимость покупки бизнеса с ID=2.
+# %business_business_buy_price_...% - т.д.
+#
+# %business_booster_duration_1% - Продолжительность действия первого бустера игрока (если есть или 0 сек.), например 1 мин. 23 сек.
+# %business_booster_duration_2% - Продолжительность действия первого второго игрока (если есть или 0 сек.), например 1 мин. 23 сек.
+# %business_booster_duration_...% - т.д.
+#
+# %business_booster_multiplier_1% - Множитель первого бустера (если есть или 1), например 2.
+# %business_booster_multiplier_2% - Множитель второго бустера (если есть или 1), например 2.
+# %business_booster_multiplier_...% - т.д.
+#
+# %business_booster_total_multiplier% - Суммарный множитель всех бустеров игрока (если есть или 1), сложение путем "x2 + x2 = x3, а не x4".
+#
+# %business_total_cloth_business_income_multiplier% - Суммарный "x2 + x2 = x3, а не x4" множитель всех одетых одежд игрока если есть или 1.
+# %business_total_addition_income_percent_for_total_business_income% - Суммарный дополнительный процент от дохода бизнеса который игрок получит от всех одетых одежд если есть или 0.
+#
+# Примечание:
+# Добавьте игроку разрешение формата "business.offline_income.seconds.N1.percent.N2", где N1 максимальное число
+# секунд проводимое оффлайн (не на сервере) за которое при входе будет начислена сумма в размере N2% от суммарного
+# дохода всех бизнесов (разрешения стакаются и сопровождаются сообщениями при входе).
+#
+# Добавьте игроку разрешение формата "business.teleportation.N", где N является ID безнеса и игрок
+# сможет телепортировать на его координаты по нажатию из списка приобретенных бизнесов.
+
+message:
+  reload: '&aПлагин перезагружен!'
+  reload_denied: '&cОтказано в доступе на перезагрузку этого плагина.'
+  permission_denied: '&cОтказано в доступе.'
+  multiplier_set_denied: '&cВы не можете устанавливать множитель.'
+  business_not_exist: '&cБизнеса с таким ID не существует.'
+  business_has_max_level: '&cЭтот бизнес уже имеет максимальный уровень.'
+  business_bought: '&aБизнес %business_display_name%&a куплен!'
+  business_level_up: '&aУровень бизнеса %business_display_name%&a повышен до &e%new_level%&a!'
+  salary_received: '&eПолучен доход от бизнеса %business_display_name%&e в размере &b$%salary% &e(множитель &bx%business_income_multiplier%&e)'
+  not_enough_money: '&cНеобходимо &b$%required_money_amount%&c, а есть только &b$%current_money_amount%.'
+  multiplier_set: '&aМножитель установлен!'
+  multiplier_not_number: '&cМножитель не является числом.'
+  player_offline: '&cЭтот игрок сейчас не онлайн.'
+  player_does_not_exist: '&cИгрока с таким ником не зарегистрировано.'
+  cloth_does_not_exist: '&cОдежды с таким ID не существует.'
+  cloth_gived: '&aОдержда выдана.'
+  reset: '&aТеперь у этого игрока нет купленных бизнесов.'
+  offline_income_received: '&eПолучен доход в размере &a$%offline_income% &eза &b%seconds_in_offline% сек. &eпроведенных в оффлайне.'
+  booster_global_received: '&aВы получили глобальный бустер &ex%multiplier% &aна &e%duration%&a.'
+  booster_global_gived: '"&aВсе игроки онлайн получили глобальный бустер &ex%multiplier% &aна &e%duration%&a."'
+  booster_player_received: '&aВы получили персональный бустер &ex%multiplier% &aна &e%duration%&a.'
+  booster_player_gived: '&aИгроку &e%player% &aвыдан персональный бустер &ex%multiplier% &aна &e%duration%&a.'
+  invalid_booster_duration_time: '&cНевалидное время действия бустера.'
+  invalid_booster_multiplier: '&cНевалидный множитель бустера.'
+  teleportation_to_business_location_denied: '&cНет разрешения чтобы телепортироваться к бизнесу.'
+  teleported_to_business_location: '&aТелепортирован к бизнесу!'
+  help:
+    - '&e/business reload &7- Перезагрузка плагина.'
+    - '&e/business help &7- Показать список команд.'
+    - '&e/business (id) up &7- Купить бизнес или улучшить если куплен.'
+    - '&e/business (ник игрока) multiplier (множитель) &7- Установить множитель дохода игроку.'
+    - '&e/business (ник игрока) multiplier add (значение) &7- Увеличить множитель дохода игроку.'
+    - '&e/business (ник игрока) multiplier del (значение) &7- Уменьшить множитель дохода игроку.'
+    - '&e/business (ник игрока) reset &7- Очистить список купленных бизнесов игрока.'
+    - '&e/booster global add &b(кол-во сек) (множитель) &7- выдать бустер всем игрокам онлайн'
+    - '&e/booster player &b(ник) (кол-во сек) (множитель) &7- выдать бустер игроку онлайн/оффлайн'
+    - '&e/cloth &b(ник игрока онлайн) &eadd &b(ID одежды) &7- выдать игроку предмет одежды по ID' 
+
+permission:
+  reload: business.reload # Разрешение на перезагрузку этого плагина.
+  multiplier_set: business.multiplier.set # Разрешение на установку мультипликатора.
+  booster_add_global: business.booster.add.global # Разрешение на выдачу глобальных бустеров.
+  booster_add_player: business.booster.add.player # Разрешение на выдачу персонального бустера игроку.
+  cloth_add_player: business.cloth.add.player # Разрешение на выдачу одежды игроку по ID.
+
+# Формула расчета финального дохода с бизнеса.
+#
+# Плейсхолдеры используемые по умолничаю:
+# %business_income% # Базовый доход расчитываемый конфигурационной формулой индивидуально для каждого бизнеса.
+# %player_business_income_multiplier% # Индивидуальный множитель дохода от любого бизнеса присвоенный конкретному игроку.
+# %total_booster_business_income_multiplier% # Суммарный "x2 + x2 = x3, а не x4" множитель всех бустеров игрока если есть или 1.
+# %total_cloth_business_income_multiplier% # Суммарный "x2 + x2 = x3, а не x4" множитель всех одетых одежд игрока если есть или 1.
+#
+# Плейсхолдеры PAPI поддерживаются тоже.
+business_final_income_formula: '(%business_income% + %business_income% * %player_business_income_multiplier%) * %total_booster_business_income_multiplier% * %total_cloth_business_income_multiplier%'
+
+hologram:
+  open_menu_radius: 5 # Радиус от центра голограммы в котором будет открываться меню.
+  not_buyed: # Текст голограммы который будет показан, если бизнес еще не куплен.
+             # Поддержка PAPI и плейсхолдера %id% который будет заменен на ID бизнеса.1
+    - '%business_business_display_name_%id%%'
+    - ''
+    - '&cНе куплен'
+    - '&fЦена покупки: &a%business_business_buy_price_%id%% руб.'
+    - '&e&lНАЖМИТЕ SHIFT, ЧТОБЫ КУПИТЬ!'
+  buyed: # Текст голограммы который будетв показан, если бизнес уже куплен.
+         # Поддержка PAPI и плейсхолдера %id% который будет заменен на ID бизнеса.
+    - '%business_business_display_name_%id%%'
+    - ''
+    - '&fУровень: &7%business_player_business_level_%id%%&f/&7%business_business_max_level_%id%%'
+    - ''
+    - '&fДоход: &b%business_player_business_total_income_%id%% руб.'
+    - '&fЦена улучшения: &a%business_player_business_upgrade_price_%id%% руб.'
+    - '&eНАЖМИТЕ SHIFT, ЧТОБЫ УЛУЧШИТЬ!'
+  max: # Текст голограммы который будетв показан, если бизнес уже имеет максимальный уровень.
+       # Поддержка PAPI и плейсхолдера %id% который будет заменен на ID бизнеса.
+    - '%business_business_display_name_%id%%'
+    - ''
+    - '&aМаксимальное улучшение'
+    - '&e&lНАЖМИТЕ SHIFT, ЧТОБЫ ОТКРЫТЬ!'
+
+separator: ','
+formatter: # В порядке убывания. Можно добавить числа больше чем указнные.
+  1000000000000000000: 'E'
+  1000000000000000: 'P'
+  1000000000000: 'T'
+  1000000000: 'G'
+  1000000: 'M'
+  1000: 'k'
+
+gui:
+  title: 'Мои бизнесы'
+  size: 54
+
+confirm_gui:
+  title: 'Апгред бизнеса'
+  size: 54
+  new_business:
+    x: 5
+    y: 3
+    lore:
+      - '&8Уровень: &6%level%&8/&6%max_level%'
+      - '&8Доход: &a$%income%&8/&9%income_delay% сек.'
+      - ''
+      - '&7Стоимость: &a$%price%'
+  upgrade_business:
+    lore:
+      - '&8Уровень: &6%level%&8/&6%max_level% &8-> &6%next_level%&8/&6%max_level%'
+      - '&8Доход: &a$%current_income%&8/&9%income_delay% сек. &8-> &a$%next_income%&8/&9%income_delay% сек.'
+      - ''
+      - '&7Стоимость: &a$%price%'
+  max_business:
+    lore:
+      - '&8Уровень: &6%level%&8/&6%max_level%'
+      - '&8Доход: &a$%income%&8/&9%income_delay% сек.'
+      - ''
+      - '&eМаксимальный уровень!'
+  info:
+    position:
+      x: 5
+      y: 2
+  accept:
+    position:
+      x: 4
+      y: 5
+    item:
+      material: WOOL:5
+      amount: 1
+      durability: 0
+      name: '&aПодтвердить'
+      lore:
+        - '&8&oПодтвердить действие.'
+  cancel:
+    position:
+      x: 6
+      y: 5
+    item:
+      material: WOOL:14
+      amount: 1
+      durability: 0
+      name: '&cОтмена'
+      lore:
+        - '&8&oОтклонить действие.'
+
+business_list:
+  1:
+    item:
+      material: BEDROCK
+      amount: 1
+      durability: 0
+      name: '&eБизнес #1'
+      lore:
+        - ''
+        - '&8Уровень: &6%level%&8/&6%max_level%'
+        - '&8Доход: &a$%income%&8/&9%income_delay% сек.'
+    income_delay: 5 # (Сек.) Интервал начисления прибыли.
+    level_price_formula: '%level% * 10' # Формула расчета стоимости уровня бизнеса от 1 до max_level.
+    level_income_formula: '%level% * 1' # Формула расчета дохода уровня бизнеса от 1 до max_level.
+    max_level: 5 # Максимальный уровень бизнеса.
+    x: 10
+    y: 4
+    z: 10
+  2:
+    item:
+      material: BEDROCK
+      amount: 1
+      durability: 0
+      name: '&eБизнес #2'
+      lore:
+        - ''
+        - '&8Уровень: &6%level%&8/&6%max_level%'
+        - '&8Доход: &a$%income%&8/&9%income_delay% сек.'
+    income_delay: 10
+    level_price_formula: '%level% * 100'
+    level_income_formula: '%level% * 10'
+    max_level: 10
+    location:
+    x: 0
+    y: 4
+    z: 0
+
+cloth_list: # Список одежд.
+  1: # ID одежды.
+    business_income_multiplier: 1.05 # Множитель дохода который используется в формуле вычисления суммарного дохода бизнеса и будет задействован если этот предмет одет.
+    addition_income_percent_for_total_business_income: 10.5 # (Процентов %.) Дополнительный процент от дохода бизнеса который игрок получит если этот предмет одет.
+    item: # Визуализация предмета которую можно выдать игроку командой /.
+      material: LEATHER_CHESTPLATE
+      rgb: # Цвет кожаной брони (опционально).
+        r: 255 # Красный 0-255.
+        g: 0 # Зеленый 0-255.
+        b: 0 # Синий 0-255.
+      display_name: '&aКрасный жакет'
+      description:
+        - '&7Множитель дохода: &6x1.05'
+        - '&7Дополнительный процент от дохода: &a+10.5%'
+
+mining_block_hologram_string_list:
+  - '&eБлок сломан!'
+  - '&fДоход составил &a+$%income%'
+
+mining_block_hologram_height: 2.0 # Блоков. Высота спавна голограммы.
+
+mining_block_list: # Список добываемых блоков.
+  1: # ID добываемого блока.
+    block: # Тип блока.
+      material: WOOL # Тип материала за который игрок получит вознаграждение и который будет восстановленвспустя время.
+                     # Используйте материалы версии ядра на котором запускаете плагин (по умолничаю: 1.8.8).
+                     # Списки всех материалов для каждой версии:
+                     # https://helpch.at/docs/1.8.8/org/bukkit/Material.html
+                     # https://helpch.at/docs/x.x.x/org/bukkit/Material.html
+                     # ...
+      data: 14 # (Опционально) Дата материала, удалите эту строку и дата учитываться не будет.
+
+    # (Опционально) Тип блока на который будет заменен этот сломанный, удалите эту секцию и этот тип блока будет заменятся на воздух.
+    # Примечание: если заменять на этот же тип блока или на подобный который
+    # можно сломать, они начнут заменять друг друга и блок совсем изменится.
+    replace_block:
+      material: WOOL
+      data: 1
+
+    respawn_delay: 5 # Сек. Время восстановления блока этого типа.
+    income_formula: '2' # Формула базового дохода за ломание блока этого типа. В примере игрок просто получит 2 еденицы валюты. PAPI поддерживается.
+                        # Например: '%business_business_total_income% / 100 * 10' зачислил бы игроку 10% от его суммарного финального дохода всех бизнесов.
+
+    # (Опционально) Список WorldGuard регионов в которых можно ломать этот тип блока, удалите эту секцию и этот тип блока можно будет ломать везде.
+    can_only_be_broke_in_worldguard_region_list:
+      - 'spawn'
+      - 'region123'
+
+  2:
+    block:
+      material: STONE
+    respawn_delay: 10
+    income_formula: '%business_business_total_income% / 100 * 10'
+      

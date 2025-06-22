@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="business:jar">
+    <output-path>$PROJECT_DIR$/../servers/bum2023/plugins</output-path>
+    <root id="archive" name="business.jar">
+      <element id="module-output" name="business" />
+    </root>
+  </artifact>
+</component>

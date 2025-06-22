@@ -1,0 +1,21 @@
+name: Business
+version: 1.0.9
+author: zoltiks
+api-version: 1.13
+main: me.zoltiks.business.Main
+depend: [Vault, PlaceholderAPI, DecentHolograms, WorldGuard]
+commands:
+  business:
+  booster:
+    aliases: []
+    description: операции с бустерами
+    usage: |-
+      §7Использование команды "§f/booster§7":
+      §e/booster global add §b(кол-во сек) (множитель) §7- выдать бустер всем игрокам онлайн
+      §e/booster player §b(ник) (кол-во сек) (множитель) §7- выдать бустер игроку онлайн/оффлайн
+  cloth:
+    aliases: []
+    description: операции с одеждой
+    usage: |-
+      §7Использование команды "§f/cloth§7":
+      §e/cloth §b(ник игрока онлайн) §eadd §b(ID одежды) §7- выдать игроку предмет одежды по ID

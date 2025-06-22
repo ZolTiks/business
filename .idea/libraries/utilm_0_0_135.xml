@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="utilm-0.0.135">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../servers/bum2023/plugins/utilm-0.0.135.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
