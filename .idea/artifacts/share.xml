@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="share">
+    <output-path>$PROJECT_DIR$/..</output-path>
+    <root id="archive" name="share.zip">
+      <element id="module-output" name="business" />
+    </root>
+  </artifact>
+</component>
